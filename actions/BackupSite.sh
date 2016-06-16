@@ -1,3 +1,6 @@
 #!/bin/bash
 # Bash Menu Script Example
-echo "---------->This will offer you a list of sites to choose for backup"
+sleep 0.2
+export COLUMNS=20
+source functions.sh
+echo "----------> Backup One Site <------------------------------ "
