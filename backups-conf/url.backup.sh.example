@@ -1,0 +1,7 @@
+webroot='/var/www/vhosts/sitename.es/httpdocs',
+weburi=http://sitename.es
+remotehost=11.11.11.11
+remoteuser=root
+databasename=namedb
+databaseuser=nameuser
+databasepassword=namepass
