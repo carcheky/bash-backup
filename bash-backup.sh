@@ -21,8 +21,8 @@ select answer in "${choices[@]}" "QUIT"; do
     if [[ $answer == "QUIT" ]]; then
         clear
         echo "_______________________________________________"
-        echo "
-        Thanks & bye"
+        echo ""
+        echo "                Thanks & bye"
         echo "_______________________________________________"
         sleep 0
         clear
