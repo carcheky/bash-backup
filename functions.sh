@@ -1,19 +1,29 @@
 TMPDIR="/tmp"
-getMenu (){
 
+MainMenu(){
+  /bin/bash ./bash-backup.sh
+}
+
+getMenu (){
   getActions
+  choices=(${choices[@]} "Quit")
+  ShowHead "Action list:"
   PS3="Please enter your choice: "
   select answer in "${choices[@]}"; do
     for item in "${choices[@]}"; do
+      if [[ $item == "Quit" ]]; then
+        clear
+        exit
+        exit
+      fi
       if [[ $item == $answer ]]; then
         clear
         runAction $item
-        MainMenu
       fi
+
     done
   done
 }
-
 getActions(){
     actions=(./actions/*.sh)
     for item in "${actions[@]}"; do
@@ -23,16 +33,19 @@ getActions(){
 
 getBackupMenu (){
 getBackupConfigList
+backup=("BACK TO MENU" "" ${backup[@]})
+ShowHead "Avaivable sites to backup:"
 PS3="Select site to backup: "
 select answer in "${backup[@]} "; do
   for item in "${backup[@]}"; do
+    if [[ $item == "BACK TO MENU" ]]; then
+      clear
+      getMenu
+    fi
     if [[ $item == $answer ]]; then
         runInSsh $item
     fi
-    if [[ $item == "BACK TO MENU" ]]; then
-      clear
-      MainMenu
-    fi
+
     echo $item
   done
 done
@@ -42,7 +55,6 @@ getBackupConfigList(){
     for item in "${backups[@]}"; do
         backup=(${backup[@]} ${item##*/})
     done
-    backup=(${backup[@]} "BACK TO MENU")
 }
 
 insertSpace(){
@@ -59,22 +71,13 @@ backupValues(){
   ssh
 }
 
-BackupMenu(){
-  insertSpace
-  /bin/bash ./actions/BackupsConfigList.sh
-}
-
 LoadBackupVariables(){
   source backups-conf/$1
 }
 
-MainMenu(){
-  /bin/bash ./bash-backup.sh
-}
 
 runInSsh(){
-  clear
-  echo "----------> Realizando Backup ---------->  $1"
+  echo "Realizando Backup de  $1"
   LoadBackupVariables $1
   jftime=$(date "+%Y%m%d%H%M%S")
   jfday=$(date "+%Y%m%d")
@@ -87,4 +90,39 @@ runInSsh(){
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR/$1"
   rsync -avh $remoteuser@$remotehost:$BACKUPDIR bash-backups
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
+}
+
+ShowHead(){
+  echo "_____________________________________________________________"
+  echo "_                                                           _"
+  echo "_                 BASH BACKUP                               _"
+  echo "_                            por @carcheky                  _"
+  echo "_                                                           _"
+  echo "_____________________________________________________________"
+  echo ""
+  echo ""
+  if [[ $1 ]]; then
+  echo $1
+  echo ""
+  fi
+}
+
+
+BackupAllSites(){
+  ShowHead "Backup All"
+  getBackupConfigList
+  for item in "${backup[@]}"
+  do
+    echo "_____________________________________________________________"
+    echo "_____________________________________________________________"
+    runInSsh $item
+    echo "backup de $item realizado"
+    echo ""
+    echo ""
+    echo ""
+    echo ""
+  done
+  echo "Backup completed"
+  pause
+  getMenu
 }
