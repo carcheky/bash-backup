@@ -1,4 +1,5 @@
 TMPDIR="/tmp"
+LOCALBACKUPDIR=~/BACKUP_SITES
 
 MainMenu(){
   /bin/bash ./bash-backup.sh
@@ -88,7 +89,7 @@ runInSsh(){
   ssh $remoteuser@$remotehost "mysqldump -u$databaseuser -p$databasepassword $databasename > $BACKUPDIR/$1/backup.sql"
   ssh $remoteuser@$remotehost "cd $BACKUPDIR; tar -zcf $1-$jftime.tar.gz $1"
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR/$1"
-  rsync -avh $remoteuser@$remotehost:$BACKUPDIR bash-backups
+  rsync -avh $remoteuser@$remotehost:$BACKUPDIR $LOCALBACKUPDIR
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
 }
 
@@ -123,6 +124,5 @@ BackupAllSites(){
     echo ""
   done
   echo "Backup completed"
-  pause
   getMenu
 }
