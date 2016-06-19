@@ -6,6 +6,7 @@ getMenu (){
   select answer in "${choices[@]}"; do
     for item in "${choices[@]}"; do
       if [[ $item == $answer ]]; then
+        clear
         runAction $item
         MainMenu
       fi
@@ -68,8 +69,7 @@ LoadBackupVariables(){
 }
 
 MainMenu(){
-  clear
-  /bin/bash ./dev.sh
+  /bin/bash ./bash-backup.sh
 }
 
 runInSsh(){
@@ -83,8 +83,7 @@ runInSsh(){
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$1"
   ssh $remoteuser@$remotehost "cp -fr $webroot $BACKUPDIR/$1"
   ssh $remoteuser@$remotehost "mysqldump -u$databaseuser -p$databasepassword $databasename > $BACKUPDIR/$1/backup.sql"
-  ssh $remoteuser@$remotehost "cd $BACKUPDIR; rm $1/sites/default/settings.php"
-  ssh $remoteuser@$remotehost "cd $BACKUPDIR; tar -zcvf $1-$jftime.tar.gz $1"
+  ssh $remoteuser@$remotehost "cd $BACKUPDIR; tar -zcf $1-$jftime.tar.gz $1"
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR/$1"
   rsync -avh $remoteuser@$remotehost:$BACKUPDIR bash-backups
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
