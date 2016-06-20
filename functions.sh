@@ -7,7 +7,6 @@ MainMenu(){
 
 getMenu (){
   getActions
-  choices=(${choices[@]} "Quit")
   ShowHead "Action list:"
   PS3="Please enter your choice: "
   select answer in "${choices[@]}"; do
@@ -15,13 +14,11 @@ getMenu (){
       if [[ $item == "Quit" ]]; then
         clear
         exit
-        exit
       fi
       if [[ $item == $answer ]]; then
         clear
         runAction $item
       fi
-
     done
   done
 }
@@ -30,16 +27,17 @@ getActions(){
     for item in "${actions[@]}"; do
         choices=(${choices[@]} ${item##*/})
     done
+  choices=(${choices[@]} "Quit")
+
 }
 
 getBackupMenu (){
 getBackupConfigList
-backup=("BACK TO MENU" "" ${backup[@]})
 ShowHead "Avaivable sites to backup:"
 PS3="Select site to backup: "
 select answer in "${backup[@]} "; do
   for item in "${backup[@]}"; do
-    if [[ $item == "BACK TO MENU" ]]; then
+    if [[ $item == "BACK TO MAIN MENU" ]]; then
       clear
       getMenu
     fi
@@ -47,15 +45,17 @@ select answer in "${backup[@]} "; do
         runInSsh $item
     fi
 
-    echo $item
+    echo $item $answer
   done
 done
 }
 getBackupConfigList(){
     backups=(./backups-conf/*.sh)
-    for item in "${backups[@]}"; do
-        backup=(${backup[@]} ${item##*/})
+    for itembackup in "${backups[@]}"; do
+        backup=(${backup[@]} ${itembackup##*/})
     done
+    backup=(${backup[@]} "BACK TO MAIN MENU")
+
 }
 
 insertSpace(){
@@ -78,6 +78,8 @@ LoadBackupVariables(){
 
 
 runInSsh(){
+  echo "_____________________________________________________________"
+  echo "_____________________________________________________________"
   echo "Realizando Backup de  $1"
   LoadBackupVariables $1
   jftime=$(date "+%Y%m%d%H%M%S")
@@ -91,6 +93,11 @@ runInSsh(){
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR/$1"
   rsync -avh $remoteuser@$remotehost:$BACKUPDIR $LOCALBACKUPDIR
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
+  echo "backup de $1 realizado"
+  echo ""
+  echo ""
+  echo ""
+  echo ""
 }
 
 ShowHead(){
@@ -114,14 +121,7 @@ BackupAllSites(){
   getBackupConfigList
   for item in "${backup[@]}"
   do
-    echo "_____________________________________________________________"
-    echo "_____________________________________________________________"
     runInSsh $item
-    echo "backup de $item realizado"
-    echo ""
-    echo ""
-    echo ""
-    echo ""
   done
   echo "Backup completed"
   getMenu
