@@ -2,11 +2,11 @@ source global-conf.sh
 
 getMenu (){
   getActions
-  ShowHead "Action list:"
-  PS3="Please enter your choice: "
+  ShowHead "Opciones disponibles:"
+  PS3="Selecciona una opción: "
   select answer in "${choices[@]}"; do
     for item in "${choices[@]}"; do
-      if [[ $item == "Quit" ]]; then
+      if [[ $item == "SALIR" ]]; then
         clear
         exit
       fi
@@ -23,17 +23,17 @@ getActions(){
     for item in "${actions[@]}"; do
         choices=(${choices[@]} ${item##*/})
     done
-  choices=(${choices[@]} "Quit")
+  choices=(${choices[@]} "SALIR")
 
 }
 
 getBackupMenu (){
 getBackupConfigList
-ShowHead "Avaivable sites to backup:"
-PS3="Select site to backup: "
+ShowHead "Sitios disponibles para realizar una copia de seguridad:"
+PS3="Selecciona un sitio: "
 select answer in "${backup[@]} "; do
   for item in "${backup[@]}"; do
-    if [[ $item == "BACK TO MAIN MENU" ]]; then
+    if [[ $item == "VOLVER" ]]; then
       clear
       getMenu
     fi
@@ -49,7 +49,7 @@ getBackupConfigList(){
     for itembackup in "${backups[@]}"; do
         backup=(${backup[@]} ${itembackup##*/})
     done
-    backup=(${backup[@]} "BACK TO MAIN MENU")
+    backup=(${backup[@]} "VOLVER")
 
 }
 
@@ -62,14 +62,17 @@ LoadBackupVariables(){
 }
 
 runInSsh(){
-  echo ""
-  echo "============================================================="
-  echo "Realizando Backup de  $1"
+  if [ ! -d "$LOCALBACKUPDIR" ]; then
+    mkdir $LOCALBACKUPDIR/
+    echo -e "${YELLOW}$LOCALBACKUPDIR creado${NC}"
+  fi
   LoadBackupVariables $1
   jftime=$(date "+%Y%m%d%H%M%S")
   jfday=$(date "+%Y%m%d")
   BACKUPDIR=$TMPDIR/bash-backups-$jfday
-
+  echo ""
+  echo -e "${BLUE}============================================================="
+  echo -e "${CYAN}Realizando backup de $weburi ${NC}\n"
   if [[ $DEV == 1 ]]; then
     sudo rm -fr $LOCALBACKUPDIR
     ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
@@ -81,31 +84,34 @@ runInSsh(){
     echo "====================================================="
   fi
 
+  ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR*"
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR"
-  ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$1"
-  ssh $remoteuser@$remotehost "cp -fr $webroot $BACKUPDIR/$1"
-  ssh $remoteuser@$remotehost "mysqldump -u$databaseuser -p$databasepassword $databasename > $BACKUPDIR/$1/backup.sql"
-  ssh $remoteuser@$remotehost "cd $BACKUPDIR; tar -zcf $1-$jftime.tar.gz $1 --exclude=settings.php --exclude=*.mp4"
-  ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR/$1"
-  rsync -avh $remoteuser@$remotehost:$BACKUPDIR $LOCALBACKUPDIR
+  ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi"
+  ssh $remoteuser@$remotehost "cp -fr $webroot $BACKUPDIR/$weburi"
+  ssh $remoteuser@$remotehost "mysqldump -u$databaseuser -p$databasepassword $databasename > $BACKUPDIR/$weburi/backup.sql"
+  ssh $remoteuser@$remotehost "cd $BACKUPDIR; tar -zcf $weburi.$jftime.tar.gz $weburi --exclude=settings.php --exclude=*.mp4"
+  ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR/$weburi"
+  if [ ! -d "$LOCALBACKUPDIR/$weburi" ]; then
+    mkdir $LOCALBACKUPDIR/$weburi
+    echo -e "${YELLOW}$LOCALBACKUPDIR/$weburi creado${NC}"
+  fi
+  rsync -avh $remoteuser@$remotehost:$BACKUPDIR/ $LOCALBACKUPDIR/$weburi
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
-  echo "backup de $1 realizado"
   echo ""
+  echo -e "${GREEN}backup de $1 realizado${NC}"
   echo ""
-  echo ""
-  echo ""
-
+  ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR*"
 }
 
 ShowHead(){
-  echo "============================================================"
-  echo "============================================================"
-  echo "====                                                    ===="
-  echo "====             BASH BACKUP                            ===="
-  echo "====                        por @carcheky               ===="
-  echo "====                                                    ===="
-  echo "============================================================"
-  echo "============================================================"
+  echo -e "${PURPLE}============================================================${NC}"
+  echo -e "${PURPLE}============================================================${NC}"
+  echo -e "${PURPLE}====                                                    ====${NC}"
+  echo -e "${PURPLE}====             BASH BACKUP                            ====${NC}"
+  echo -e "${PURPLE}====                        por @carcheky               ====${NC}"
+  echo -e "${PURPLE}====                                                    ====${NC}"
+  echo -e "${PURPLE}============================================================${NC}"
+  echo -e "${PURPLE}============================================================${NC}"
   echo ""
   echo ""
   if [[ $1 ]]; then
@@ -116,14 +122,17 @@ ShowHead(){
 
 
 BackupAllSites(){
-  ShowHead "Backup All"
+  ShowHead "Realizando copia de seguridad de todos los sitios"
   getBackupConfigList
   for item in "${backup[@]}"
   do
-    if [[ $item != "BACK TO MAIN MENU" ]]; then
+    if [[ $item != "VOLVER" ]]; then
       runInSsh $item
     fi
   done
-  echo "Backup completed"
+  clear
+  echo ""
+  echo -e "${GREEN}Copia de seguridad completa terminada"
+  echo ""
   getMenu
 }
