@@ -62,7 +62,7 @@ LoadBackupVariables(){
 }
 
 runInSsh(){
-  echo "============================================================="
+  echo ""
   echo "============================================================="
   echo "Realizando Backup de  $1"
   LoadBackupVariables $1
@@ -74,9 +74,11 @@ runInSsh(){
     sudo rm -fr $LOCALBACKUPDIR
     ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
     echo ""
-    echo "==============================================="
-    echo "=             RUNNING IN DEV MODE             ="
-    echo "==============================================="
+    echo "====================================================="
+    echo "====================================================="
+    echo "====             RUNNING IN DEV MODE             ===="
+    echo "====================================================="
+    echo "====================================================="
   fi
 
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR"
@@ -96,12 +98,14 @@ runInSsh(){
 }
 
 ShowHead(){
-  echo "============================================================="
-  echo "=                                                           ="
-  echo "=                 BASH BACKUP                               ="
-  echo "=                            por @carcheky                  ="
-  echo "=                                                           ="
-  echo "============================================================="
+  echo "============================================================"
+  echo "============================================================"
+  echo "====                                                    ===="
+  echo "====             BASH BACKUP                            ===="
+  echo "====                        por @carcheky               ===="
+  echo "====                                                    ===="
+  echo "============================================================"
+  echo "============================================================"
   echo ""
   echo ""
   if [[ $1 ]]; then
@@ -116,7 +120,9 @@ BackupAllSites(){
   getBackupConfigList
   for item in "${backup[@]}"
   do
-    runInSsh $item
+    if [[ $item != "BACK TO MAIN MENU" ]]; then
+      runInSsh $item
+    fi
   done
   echo "Backup completed"
   getMenu

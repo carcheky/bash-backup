@@ -1,3 +1,4 @@
 /bash-backups/
 /backups-conf/*.sh
 .DS_Store
+Delete_All.sh
