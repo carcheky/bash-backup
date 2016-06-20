@@ -1,8 +1,15 @@
+# dev mode: 1 activado
+# Esta variable activada lo que hace es asegurarse de boorar directorios
+# locales de copias de seguridad y temporales remotos
 DEV=0
+
+# Variable para establecer la ruta temporal del directorio remoto
+# Por defecto, no tocar, suele ser esta en todos los servidores
 TMPDIR="/tmp"
+
+# Variable para establecer el directorio local donde guardar las copias de
+# seguridad
 LOCALBACKUPDIR=~/BACKUP_SITES
-
-
 
 # Colorines to guapos
 # Black        0;30     Dark Gray     1;30
