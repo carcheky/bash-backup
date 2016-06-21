@@ -1,5 +1,5 @@
-webroot='/var/www/vhosts/sitename.es/httpdocs'
 weburi=http://sitename.es
+webroot='/var/www/vhosts/sitename.es/httpdocs'
 remotehost=11.11.11.11
 remoteuser=root
 databasename=namedb
