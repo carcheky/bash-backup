@@ -3,5 +3,10 @@
 # export COLUMNS=20
 # source functions.sh
 source functions.sh
-resetToDev user host
+
+echo "Root user:"
+read rootname
+echo "host:"
+read roothost
+resetToDev $rootname $roothost
 getMenu
