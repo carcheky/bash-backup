@@ -1,15 +1,12 @@
 source global-conf.sh
+export COLUMNS=200
+PS3="Selecciona una opción: "
 
 getMenu (){
   getActions
   ShowHead "Opciones disponibles:"
-  PS3="Selecciona una opción: "
   select answer in "${choices[@]}"; do
     for item in "${choices[@]}"; do
-      if [[ $item == "SALIR" ]]; then
-        clear
-        exit
-      fi
       if [[ $item == $answer ]]; then
         clear
         runAction $item
@@ -23,22 +20,19 @@ getActions(){
     for item in "${actions[@]}"; do
         choices=(${choices[@]} ${item##*/})
     done
-  choices=(${choices[@]} "SALIR")
-
 }
 
 getBackupMenu (){
 getBackupConfigList
 ShowHead "Sitios disponibles para realizar una copia de seguridad:"
-PS3="Selecciona un sitio: "
 select answer in "${backup[@]} "; do
   for item in "${backup[@]}"; do
-    if [[ $item == "VOLVER" ]]; then
+    if [[ $answer == "VOLVER" ]]; then
       clear
       getMenu
     fi
     if [[ $item == $answer ]]; then
-        runInSsh $item
+        runInSsh $item deletescreen
     fi
   done
 done
@@ -46,10 +40,10 @@ done
 
 getBackupConfigList(){
     backups=(./backups-conf/*.sh)
+    backup=("VOLVER")
     for itembackup in "${backups[@]}"; do
         backup=(${backup[@]} ${itembackup##*/})
     done
-    backup=(${backup[@]} "VOLVER")
 
 }
 
@@ -73,17 +67,8 @@ runInSsh(){
   echo ""
   echo -e "${BLUE}============================================================="
   echo -e "${CYAN}Realizando backup de $weburi ${NC}\n"
-  if [[ $DEV == 1 ]]; then
-    sudo rm -fr $LOCALBACKUPDIR
-    ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
-    echo ""
-    echo "====================================================="
-    echo "====================================================="
-    echo "====             RUNNING IN DEV MODE             ===="
-    echo "====================================================="
-    echo "====================================================="
-  fi
 
+  runInDev
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR*"
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR"
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi"
@@ -97,19 +82,26 @@ runInSsh(){
   fi
   rsync -avh $remoteuser@$remotehost:$BACKUPDIR/ $LOCALBACKUPDIR/$weburi
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
-  echo ""
-  echo -e "${GREEN}backup de $weburi realizado${NC}"
-  echo ""
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR*"
+  if [[ $2 ]]; then
+    clear
+    echo ""
+    echo -e "${GREEN}backup de $weburi realizado${NC}"
+    echo ""
+    getMenu
+  fi
+    echo ""
+    echo -e "${GREEN}backup de $weburi realizado${NC}"
+    echo ""
 }
 
 ShowHead(){
   echo -e "${PURPLE}============================================================${NC}"
   echo -e "${PURPLE}============================================================${NC}"
   echo -e "${PURPLE}====                                                    ====${NC}"
-  echo -e "${PURPLE}====             BASH BACKUP                            ====${NC}"
-  echo -e "${PURPLE}====                        por @carcheky               ====${NC}"
+  echo -e "${PURPLE}====           BASH BACKUP por @carcheky                ====${NC}"
   echo -e "${PURPLE}====                                                    ====${NC}"
+  echo -e "${PURPLE}====                                 ${RED}(ctrl + c to exit)${NC} ${PURPLE}====${NC}"
   echo -e "${PURPLE}============================================================${NC}"
   echo -e "${PURPLE}============================================================${NC}"
   echo ""
@@ -135,4 +127,62 @@ BackupAllSites(){
   echo -e "${GREEN}Copia de seguridad completa terminada"
   echo ""
   getMenu
+}
+
+
+addNewSite(){
+ShowHead "Add new site:"
+echo "weburi:"
+read weburi
+touch backups-conf/$weburi.backup.sh
+echo "weburi=$weburi" >> backups-conf/$weburi.backup.sh
+
+echo "remotehost:"
+read remotehost
+echo "remotehost=$remotehost" >> backups-conf/$weburi.backup.sh
+
+echo "remoteuser:"
+read remoteuser
+echo "remoteuser=$remoteuser" >> backups-conf/$weburi.backup.sh
+
+echo "webroot:"
+read webroot
+echo "webroot=$webroot" >> backups-conf/$weburi.backup.sh
+
+echo "databasename:"
+read databasename
+echo "databasename=$databasename" >> backups-conf/$weburi.backup.sh
+
+echo "databaseuser:"
+read databaseuser
+echo "databaseuser=$databaseuser" >> backups-conf/$weburi.backup.sh
+
+echo "databasepassword:"
+read databasepassword
+echo "databasepassword=$databasepassword" >> backups-conf/$weburi.backup.sh
+
+clear
+echo -e "${GREEN}Sitio $weburi creado${NC}"
+
+getMenu
+}
+runInDev(){
+    if [[ $DEV == 1 ]]; then
+    sudo rm -fr $LOCALBACKUPDIR
+    ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
+    echo ""
+    echo "====================================================="
+    echo "====================================================="
+    echo "====             RUNNING IN DEV MODE             ===="
+    echo "====================================================="
+    echo "====================================================="
+  fi
+}
+
+resetToDev(){
+  sudo rm -fr $LOCALBACKUPDIR
+  ssh $1@$2 "rm -fr /tmp/bash-backup*"
+  echo ""
+  echo -e "${GREEN}BACKUPS LOCALES Y TEMPORALES REMOTOS BORRADOS${NC}"
+  echo ""
 }

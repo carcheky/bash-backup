@@ -1,7 +1,8 @@
-weburi=http://sitename.es
-webroot='/var/www/vhosts/sitename.es/httpdocs'
-remotehost=11.11.11.11
+# can be created through menu
+weburi=web.com
+remotehost=web.com
 remoteuser=root
-databasename=namedb
-databaseuser=nameuser
-databasepassword=namepass
+webroot=/var/www/web.com/httpdocs
+databasename=db_name
+databaseuser=db_user
+databasepassword=db_password

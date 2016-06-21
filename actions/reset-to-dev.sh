@@ -3,4 +3,5 @@
 # export COLUMNS=20
 # source functions.sh
 source functions.sh
-BackupAllSites
+resetToDev user host
+getMenu
