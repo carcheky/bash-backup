@@ -98,7 +98,7 @@ runInSsh(){
   rsync -avh $remoteuser@$remotehost:$BACKUPDIR/ $LOCALBACKUPDIR/$weburi
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
   echo ""
-  echo -e "${GREEN}backup de $1 realizado${NC}"
+  echo -e "${GREEN}backup de $weburi realizado${NC}"
   echo ""
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR*"
 }
