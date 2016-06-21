@@ -182,7 +182,17 @@ runInDev(){
 resetToDev(){
   sudo rm -fr $LOCALBACKUPDIR
   ssh $1@$2 "rm -fr /tmp/bash-backup*"
+  ssh $1@$2 "ls -la /tmp | grep bash"
   echo ""
   echo -e "${GREEN}BACKUPS LOCALES Y TEMPORALES REMOTOS BORRADOS${NC}"
   echo ""
+}
+
+ListBackups(){
+  listbackupsites=$LOCALBACKUPDIR/*
+  for backupsite in ${listbackupsites[@]}; do
+    backupsite=${backupsite##*/}
+    echo $backupsite
+
+  done
 }
