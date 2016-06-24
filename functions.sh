@@ -1,5 +1,5 @@
 source global-conf.sh
-export COLUMNS=200
+export COLUMNS=300
 PS3="Selecciona una opción: "
 
 getMenu (){
