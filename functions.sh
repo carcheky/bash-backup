@@ -88,11 +88,13 @@ runInSsh(){
     echo ""
     echo -e "${GREEN}backup de $weburi realizado${NC}"
     echo ""
+    terminal-notifier -title "$weburi" -message "backup de $weburi realizado"
     getMenu
   fi
     echo ""
     echo -e "${GREEN}backup de $weburi realizado${NC}"
     echo ""
+    terminal-notifier -title "$weburi" -message "backup de $weburi realizado"
 }
 
 ShowHead(){
@@ -126,6 +128,7 @@ BackupAllSites(){
   echo ""
   echo -e "${GREEN}Copia de seguridad completa terminada"
   echo ""
+  terminal-notifier -title "BACKUPS COMPLETADOS!!!!" -message "Todas las tareas de Backup han sido completadas"
   getMenu
 }
 
