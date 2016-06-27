@@ -5,7 +5,7 @@ clear
 
 
 if [[ $1 == backupall ]]; then
-   /bin/bash ./actions/Backup_All_Sites.sh
+  /bin/bash ./actions/Backup_All_Sites.sh
   exit
 elif [[ 1 != backupall ]]; then
   getMenu
