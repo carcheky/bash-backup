@@ -27,12 +27,10 @@ getBackupConfigList
 ShowHead "Sitios disponibles para realizar una copia de seguridad:"
 select answer in "${backup[@]} "; do
   for item in "${backup[@]}"; do
-    if [[ $answer == "VOLVER" ]]; then
-      clear
-      getMenu
-    fi
     if [[ $item == $answer ]]; then
-        runInSsh $item deletescreen
+        # runInSsh $item deletescreen
+echo $item $answer
+        #
     fi
   done
 done
@@ -40,11 +38,10 @@ done
 
 getBackupConfigList(){
     backups=(./backups-conf/*.sh)
-    backup=("VOLVER")
     for itembackup in "${backups[@]}"; do
         backup=(${backup[@]} ${itembackup##*/})
     done
-
+        backup=(${backup[@]} "ctrl+c para salir")
 }
 
 runAction(){
