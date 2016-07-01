@@ -9,7 +9,7 @@ TMPDIR="/tmp"
 
 # Variable para establecer el directorio local donde guardar las copias de
 # seguridad
-LOCALBACKUPDIR=~/BACKUP_SITES
+LOCALBACKUPDIR=/BACKUP_SITES
 
 # Colorines to guapos
 # Black        0;30     Dark Gray     1;30
