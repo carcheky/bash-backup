@@ -2,3 +2,4 @@
 /backups-conf/*.sh
 .DS_Store
 Delete_All.sh
+*.sublime-workspace
