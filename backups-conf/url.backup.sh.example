@@ -1,8 +1,0 @@
-# can be created through menu
-weburi=web.com
-remotehost=web.com
-remoteuser=root
-webroot=/var/www/web.com/httpdocs
-databasename=db_name
-databaseuser=db_user
-databasepassword=db_password
