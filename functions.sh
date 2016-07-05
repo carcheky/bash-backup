@@ -69,7 +69,7 @@ runInSsh(){
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi"
   ssh $remoteuser@$remotehost "cp -fr $webroot $BACKUPDIR/$weburi"
   ssh $remoteuser@$remotehost "mysqldump -u$databaseuser -p$databasepassword $databasename > $BACKUPDIR/$weburi/backup.sql"
-  ssh $remoteuser@$remotehost "cd $BACKUPDIR; tar -zcf $weburi.$jftime.tar.gz $weburi --exclude=settings.php --exclude=*.mp4 --exclude=*.mysql.gz"
+  ssh $remoteuser@$remotehost "cd $BACKUPDIR; tar -zcf $weburi.$jftime.tar.gz $weburi --exclude=settings.php --exclude=*.mp4 --exclude=*.mov --exclude=*.ogm --exclude=*.webm --exclude=*.avi --exclude=*.mysql.gz"
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR/$weburi"
   if [ ! -d "$LOCALBACKUPDIR/$weburi" ]; then
     mkdir $LOCALBACKUPDIR/$weburi
