@@ -10,6 +10,7 @@ getMenu (){
       if [[ $item == $answer ]]; then
         clear
         runAction $item
+        getMenu
       fi
     done
   done
@@ -25,15 +26,13 @@ getActions(){
 getBackupMenu (){
 getBackupConfigList
 ShowHead "Sitios disponibles para realizar una copia de seguridad:"
-select answer in "${backup[@]} "; do
-  for item in "${backup[@]}"; do
-    if [[ $item == $answer ]]; then
-        # runInSsh $item deletescreen
-echo $item $answer
-        #
-    fi
+  select answer in "${backup[@]}"; do
+    for item in "${backup[@]}"; do
+      if [[ $item == $answer ]]; then
+        runInSsh $item
+      fi
+    done
   done
-done
 }
 
 getBackupConfigList(){
@@ -41,7 +40,6 @@ getBackupConfigList(){
     for itembackup in "${backups[@]}"; do
         backup=(${backup[@]} ${itembackup##*/})
     done
-        backup=(${backup[@]} "ctrl+c para salir")
 }
 
 runAction(){
@@ -117,9 +115,7 @@ BackupAllSites(){
   getBackupConfigList
   for item in "${backup[@]}"
   do
-    if [[ $item != "VOLVER" ]]; then
       runInSsh $item
-    fi
   done
   clear
   echo ""
