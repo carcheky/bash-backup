@@ -1,8 +1,9 @@
 source global-conf.sh
 export COLUMNS=999
+export TERM=xterm
 PS3="Selecciona una opción: "
-
 getMenu (){
+  cd $scriptdir
   getActions
   ShowHead "Opciones disponibles:"
   select answer in "${choices[@]}"; do
@@ -10,7 +11,6 @@ getMenu (){
       if [[ $item == $answer ]]; then
         clear
         runAction $item
-        getMenu
       fi
     done
   done
@@ -69,7 +69,7 @@ runInSsh(){
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi"
   ssh $remoteuser@$remotehost "cp -fr $webroot $BACKUPDIR/$weburi"
   ssh $remoteuser@$remotehost "mysqldump -u$databaseuser -p$databasepassword $databasename > $BACKUPDIR/$weburi/backup.sql"
-  ssh $remoteuser@$remotehost "cd $BACKUPDIR; tar -zcf $weburi.$jftime.tar.gz $weburi --exclude=settings.php --exclude=*.mp4 --exclude=*.mov --exclude=*.ogm --exclude=*.webm --exclude=*.avi --exclude=*.mysql.gz"
+  ssh $remoteuser@$remotehost "cd $BACKUPDIR; tar -zcf $weburi.-$jftime-.tar.gz $weburi --exclude=settings.php --exclude=*.mp4 --exclude=*.mov --exclude=*.ogm --exclude=*.webm --exclude=*.avi --exclude=*.mysql.gz"
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR/$weburi"
   if [ ! -d "$LOCALBACKUPDIR/$weburi" ]; then
     mkdir $LOCALBACKUPDIR/$weburi
@@ -122,7 +122,7 @@ BackupAllSites(){
   echo -e "${GREEN}Copia de seguridad completa terminada"
   echo ""
   terminal-notifier -title "BACKUPS COMPLETADOS!!!!" -message "Todas las tareas de Backup han sido completadas"
-  getMenu
+  borrarviejos
 }
 
 
@@ -184,11 +184,62 @@ resetToDev(){
   echo ""
 }
 
-ListBackups(){
-  listbackupsites=$LOCALBACKUPDIR/*
-  for backupsite in ${listbackupsites[@]}; do
-    backupsite=${backupsite##*/}
-    echo $backupsite
+divideDate(){
+  max=$1
+  pref=$1
+  jfyear=${max:0:4} #a帽o
+  jfmonth=${max:4:2} #mes
+  jfday=${max:6:2} #dia
+  jfhour=${max:8:2} #hora
+  jfminute=${max:10:2} #minuto
+  jfsecond=${max:12:2} #segundo
+}
 
-  done
+borrarviejos(){
+  echo "
+================================================================================
+  Hoy es $(date "+%d/%m/%Y").
+================================================================================"
+
+#cogemos todos los sitios con backup existentes y los contamos
+backupsites=${LOCALBACKUPDIR}/*
+count=0
+for site in ${backupsites[@]};do
+  count=$((count+1))
+done
+
+echo "  ==> ${count} sitios en total
+================================================================================"
+
+today=$(date "+%d/%m/%Y")
+todayyear=$(date "+%Y")
+todaymonth=$(date "+%m")
+todayday=$(date "+%d")
+
+for site in ${backupsites[@]};do # recorreo sitios con backup
+echo "
+================================================================================
+  Backups de ${site#$LOCALBACKUPDIR/}
+================================================================================"
+
+
+  backuplist=($site/*)
+
+count=0
+for site in ${backuplist[@]};do
+  count=$((count+1))
+  # echo $site
+done
+# echo $count
+
+lastweek=$((count-SAVEBACKUPS))
+# echo $lastweek
+count=0
+for (( i = 0; i < $lastweek; i++ )); do
+  rm ${backuplist[$i]}
+  count=$((count+1))
+done
+echo borrados $count backups
+
+done
 }

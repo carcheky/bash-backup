@@ -3,14 +3,23 @@
 # locales de copias de seguridad y temporales remotos
 DEV=0
 
+# Script path
+scriptdir=$(pwd)
 # Variable para establecer la ruta temporal del directorio remoto
 # Por defecto, no tocar, suele ser esta en todos los servidores
 TMPDIR="/tmp"
 
 # Variable para establecer el directorio local donde guardar las copias de
 # seguridad
-LOCALBACKUPDIR=/BACKUP_SITES
-
+LOCALBACKUPDIR="/Applications/MAMP/htdocs/BACKUP_SITES" #must be absolute path
+LOCALBACKUPLENGHT=${#LOCALBACKUPDIR}
+SAVEBACKUPS=10
+if [[ -d $LOCALBACKUPDIR ]]; then
+  echo "Existe $LOCALBACKUPDIR"
+else
+  echo "Creando backupdir"
+  mkdir -p $LOCALBACKUPDIR
+fi
 # Colorines to guapos
 # Black        0;30     Dark Gray     1;30
 # Red          0;31     Light Red     1;31

@@ -1,5 +1,6 @@
 /bash-backups/
 /backups-conf/*.sh
+/backups-conf/*.sh.disabled
 .DS_Store
 Delete_All.sh
 *.sublime-workspace
