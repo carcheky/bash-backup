@@ -1,7 +1,8 @@
 #!/bin/bash
-if [[ ! -f "global.conf.sh.example" ]]; then
+if [[ ! -f "global-conf.sh" ]]; then
   echo "debe crear el archivo global-conf.sh para que el script funcione"
-  exit
+  echo "esta vez lo hemos creado por ti, puedes personalizarlo si lo deseas"
+  cp global-conf.sh.example global-conf.sh
 fi
 
 source functions.sh

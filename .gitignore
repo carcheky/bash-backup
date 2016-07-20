@@ -5,3 +5,4 @@
 Delete_All.sh
 *.sublime-workspace
 *.tar.gz
+global-conf.sh
