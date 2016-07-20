@@ -11,7 +11,7 @@ TMPDIR="/tmp"
 
 # Variable para establecer el directorio local donde guardar las copias de
 # seguridad
-LOCALBACKUPDIR="/Applications/MAMP/htdocs/BACKUP_SITES" #must be absolute path
+LOCALBACKUPDIR="./BACKUP_SITES" #must be absolute path
 LOCALBACKUPLENGHT=${#LOCALBACKUPDIR}
 SAVEBACKUPS=10
 if [[ -d $LOCALBACKUPDIR ]]; then

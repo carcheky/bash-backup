@@ -4,3 +4,4 @@
 .DS_Store
 Delete_All.sh
 *.sublime-workspace
+*.tar.gz
