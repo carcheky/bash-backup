@@ -1,4 +1,9 @@
 #!/bin/bash
+if [[ ! -f "global.conf.sh.example" ]]; then
+  echo "debe crear el archivo global-conf.sh para que el script funcione"
+  exit
+fi
+
 source functions.sh
 clear
 
