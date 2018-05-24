@@ -233,18 +233,21 @@ echo "
 count=0
 for site in ${backuplist[@]};do
   count=$((count+1))
-  echo $site
+  # echo $site
 done
-echo $count
+echo "$count copias encontradas"
+
 
 lastweek=$((count-SAVEBACKUPS))
-echo $lastweek
+# echo $lastweek
 count=0
 for (( i = 0; i < $lastweek; i++ )); do
   rm ${backuplist[$i]}
   count=$((count+1))
 done
-echo borrados $count backups
+if [[ $count > 0 ]]; then
+  echo borrados $count backups
+fi
 
 done
 }
