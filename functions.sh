@@ -67,8 +67,13 @@ runInSsh(){
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR*"
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR"
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi"
-  ssh $remoteuser@$remotehost "cp -fr $webroot $BACKUPDIR/$weburi"
-  ssh $remoteuser@$remotehost "mysqldump -u$databaseuser -p$databasepassword $databasename > $BACKUPDIR/$weburi/backup.sql"
+  ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi/site"
+  ssh $remoteuser@$remotehost "cp -fr $webroot $BACKUPDIR/$weburi/site"
+  if [[ ${databasename} ]]; then
+    echo "encontrada base de datos"
+    ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi/bbdd"
+    ssh $remoteuser@$remotehost "mysqldump -u$databaseuser -p$databasepassword $databasename > $BACKUPDIR/$weburi/bbdd/backup.sql"
+  fi
   ssh $remoteuser@$remotehost "cd $BACKUPDIR; tar -zcf $weburi.-$jftime-.tar.gz $weburi --exclude=settings.php --exclude=*.mp4 --exclude=*.mov --exclude=*.ogm --exclude=*.webm --exclude=*.avi --exclude=*.mysql.gz"
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR/$weburi"
   if [ ! -d "$LOCALBACKUPDIR/$weburi" ]; then
@@ -119,7 +124,7 @@ BackupAllSites(){
   done
   clear
   echo ""
-  echo -e "${GREEN}Copia de seguridad completa terminada"
+  echo -e "${GREEN}Copia de seguridad completa terminada${NC}"
   echo ""
   terminal-notifier -title "BACKUPS COMPLETADOS!!!!" -message "Todas las tareas de Backup han sido completadas"
   borrarviejos
@@ -228,12 +233,12 @@ echo "
 count=0
 for site in ${backuplist[@]};do
   count=$((count+1))
-  # echo $site
+  echo $site
 done
-# echo $count
+echo $count
 
 lastweek=$((count-SAVEBACKUPS))
-# echo $lastweek
+echo $lastweek
 count=0
 for (( i = 0; i < $lastweek; i++ )); do
   rm ${backuplist[$i]}
