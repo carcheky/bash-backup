@@ -59,23 +59,24 @@ runInSsh(){
   jftime=$(date "+%Y%m%d%H%M%S")
   jfday=$(date "+%Y%m%d")
   BACKUPDIR=$TMPDIR/bash-backups-$jfday
+  ssh $remoteuser@$remotehost "rm -fr ${BACKUPDIR}*"
 
   echo ""
   echo -e "${BLUE}============================================================="
   echo -e "${CYAN}Realizando backup de $weburi ${NC}\n"
 
   runInDev
-  echo "creando carpetas remotas"
-  ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR*"
+  echo "==> Creando carpetas remotas"
+  ssh $remoteuser@$remotehost "rm -fr ${BACKUPDIR}*"
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR"
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi"
-  ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi/site"
   # ssh $remoteuser@$remotehost "cp -fr $webroot $BACKUPDIR/$weburi/site"
 
-  echo "Borrando carpetas temporales locales si las hubiera"
+  echo "==> Borrando carpetas temporales locales si las hubiera"
   sudo rm -fr $BACKUPDIR*
 
-  echo "creando carpetas locales temporales"
+  echo "==> Creando carpetas locales temporales"
+  echo ""
   mkdir $BACKUPDIR
   # open $BACKUPDIR
   mkdir $BACKUPDIR/$weburi
@@ -83,39 +84,54 @@ runInSsh(){
 
   for item in "${webroot[@]}"
     do
-        echo "bajando a carpetas locales temporales"
-        rsync -ahv $remoteuser@$remotehost:$item $BACKUPDIR/$weburi/site
+        echo "==> Bajando a carpetas locales temporales ($item)"
+        rsync -ahz --stats --exclude=settings.php --exclude=*.mp4 --exclude=*.mov --exclude=*.ogm --exclude=*.webm --exclude=*.avi --exclude=*.mysql.gz --log-file="$BACKUPDIR/$weburi/rsync.log.$(date +%Y%m%d%H%m%S)" $remoteuser@$remotehost:$item $BACKUPDIR/$weburi/site
+        # rsync -ahz --stats --max-size=50m --exclude=settings.php --exclude=*.mp4 --exclude=*.mov --exclude=*.ogm --exclude=*.webm --exclude=*.avi --exclude=*.mysql.gz --log-file="$BACKUPDIR/$weburi/rsync.log.$(date +%Y%m%d%H%m%S)" $remoteuser@$remotehost:$item $BACKUPDIR/$weburi/site
+
     done
 
-  if [[ ${databasename} ]]; then
-    echo "encontrada base de datos"
-    ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi/bbdd"
-    mkdir $BACKUPDIR/$weburi/bbdd
+  if [[ ${databasename[0]} ]]; then
 
-    ssh $remoteuser@$remotehost "mysqldump -u$databaseuser -p$databasepassword $databasename > $BACKUPDIR/$weburi/bbdd/${databasename}-backup.sql"
-    rsync -ah $remoteuser@$remotehost:$BACKUPDIR/ $BACKUPDIR
+      for (( c=0; c<${#databasename[@]}; c++ ))
+      do
+        echo ""
+        echo "==> Copiando base de datos (${databasename[$c]})"
+
+
+        ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi/bbdd"
+        if [[ ! -d "$BACKUPDIR/$weburi/bbdd" ]]; then
+          mkdir $BACKUPDIR/$weburi/bbdd
+        fi
+
+        ssh $remoteuser@$remotehost "mysqldump -u${databaseuser[$c]} -p${databasepassword[$c]} ${databasename[$c]} > $BACKUPDIR/$weburi/bbdd/${databasename[$c]}.sql"
+
+      done
+        echo ""
+        echo "==> Bajando bases de datos)"
+        rsync -ahz --stats --log-file="$BACKUPDIR/$weburi/rsync.log.$(date +%Y%m%d%H%m%S)" $remoteuser@$remotehost:$BACKUPDIR/ $BACKUPDIR
+        ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
+
   fi
-  # ssh $remoteuser@$remotehost "cd $BACKUPDIR; tar -zcf $weburi.-$jftime-.tar.gz $weburi --exclude=settings.php --exclude=*.mp4 --exclude=*.mov --exclude=*.ogm --exclude=*.webm --exclude=*.avi --exclude=*.mysql.gz"
 
   if [ ! -d "$LOCALBACKUPDIR/$weburi" ]; then
     mkdir $LOCALBACKUPDIR/$weburi
     echo -e "${YELLOW}$LOCALBACKUPDIR/$weburi creado${NC}"
   fi
-  echo "COMPRIMIENDO"
+  echo "==> Comprimiendo"
+  pwd=$(pwd)
   cd $LOCALBACKUPDIR/$weburi
-  # tar -zcf $weburi.-$jftime.tar.gz $BACKUPDIR/$weburi --exclude=settings.php --exclude=*.mp4 --exclude=*.mov --exclude=*.ogm --exclude=*.webm --exclude=*.avi --exclude=*.mysql.gz
   tar -zcf $weburi.-$jftime.tar.gz $BACKUPDIR/$weburi
-  cd ../..
+  cd ${pwd}
 
 
 
   # open $LOCALBACKUPDIR
   # echo $BACKUPDIR
-  # rsync -avh $remoteuser@$remotehost:$BACKUPDIR/ $LOCALBACKUPDIR/$weburi
+  # rsync  -ahz --stats $remoteuser@$remotehost:$BACKUPDIR/ $LOCALBACKUPDIR/$weburi
   # mv $BACKUPDIR/ $LOCALBACKUPDIR/$weburi/
 
   ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
-  ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR*"
+  ssh $remoteuser@$remotehost "rm -fr ${BACKUPDIR}*"
 
 
   sudo rm -fr $BACKUPDIR*

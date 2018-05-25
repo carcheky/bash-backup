@@ -8,3 +8,5 @@ Delete_All.sh
 global-conf.sh
 
 BACKUP_SITES/
+
+backups-conf2/
