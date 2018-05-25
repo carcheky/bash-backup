@@ -10,3 +10,5 @@ global-conf.sh
 BACKUP_SITES/
 
 backups-conf2/
+
+backups-conf/backedupyet/

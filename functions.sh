@@ -67,13 +67,14 @@ runInSsh(){
 
   runInDev
   echo "==> Creando carpetas remotas"
-  ssh $remoteuser@$remotehost "rm -fr ${BACKUPDIR}*"
+  ssh $remoteuser@$remotehost "rm -fr ${BACKUPDIR}/*/*sql"
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR"
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi"
   # ssh $remoteuser@$remotehost "cp -fr $webroot $BACKUPDIR/$weburi/site"
 
   echo "==> Borrando carpetas temporales locales si las hubiera"
-  sudo rm -fr $BACKUPDIR*
+  chmod -R 777 ${BACKUPDIR}
+  rm -fr ${BACKUPDIR}
 
   echo "==> Creando carpetas locales temporales"
   echo ""
@@ -85,8 +86,9 @@ runInSsh(){
   for item in "${webroot[@]}"
     do
         echo "==> Bajando a carpetas locales temporales ($item)"
-        rsync -ahz --stats --exclude=settings.php --exclude=*.mp4 --exclude=*.mov --exclude=*.ogm --exclude=*.webm --exclude=*.avi --exclude=*.mysql.gz --log-file="$BACKUPDIR/$weburi/rsync.log.$(date +%Y%m%d%H%m%S)" $remoteuser@$remotehost:$item $BACKUPDIR/$weburi/site
+        # rsync -ahz --stats --exclude=settings.php --exclude=*.mp4 --exclude=*.mov --exclude=*.ogm --exclude=*.webm --exclude=*.avi --exclude=*.mysql.gz --log-file="$BACKUPDIR/$weburi/rsync.log.$(date +%Y%m%d%H%m%S)" $remoteuser@$remotehost:$item $BACKUPDIR/$weburi/site
         # rsync -ahz --stats --max-size=50m --exclude=settings.php --exclude=*.mp4 --exclude=*.mov --exclude=*.ogm --exclude=*.webm --exclude=*.avi --exclude=*.mysql.gz --log-file="$BACKUPDIR/$weburi/rsync.log.$(date +%Y%m%d%H%m%S)" $remoteuser@$remotehost:$item $BACKUPDIR/$weburi/site
+        rsync -ahz --stats --log-file="$BACKUPDIR/$weburi/rsync.log.$(date +%Y%m%d%H%m%S)" $remoteuser@$remotehost:$item $BACKUPDIR/$weburi/site
 
     done
 
@@ -108,7 +110,7 @@ runInSsh(){
       done
         echo ""
         echo "==> Bajando bases de datos)"
-        rsync -ahz --stats --log-file="$BACKUPDIR/$weburi/rsync.log.$(date +%Y%m%d%H%m%S)" $remoteuser@$remotehost:$BACKUPDIR/ $BACKUPDIR
+        rsync -ahz --progress --log-file="$BACKUPDIR/$weburi/rsync.log.$(date +%Y%m%d%H%m%S)" $remoteuser@$remotehost:$BACKUPDIR/ $BACKUPDIR
         ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
 
   fi
@@ -119,8 +121,10 @@ runInSsh(){
   fi
   echo "==> Comprimiendo"
   pwd=$(pwd)
-  cd $LOCALBACKUPDIR/$weburi
-  tar -zcf $weburi.-$jftime.tar.gz $BACKUPDIR/$weburi
+
+  cd $BACKUPDIR
+  tar -zcf $weburi.-$jftime.tar.gz $weburi
+  mv $weburi.-$jftime.tar.gz $LOCALBACKUPDIR/$weburi/
   cd ${pwd}
 
 
@@ -134,8 +138,9 @@ runInSsh(){
   ssh $remoteuser@$remotehost "rm -fr ${BACKUPDIR}*"
 
 
-  sudo rm -fr $BACKUPDIR*
-
+  chmod -R 777 ${BACKUPDIR}
+  rm -fr ${BACKUPDIR}
+  borrarviejos
   if [[ $2 ]]; then
     clear
     echo ""
@@ -180,7 +185,6 @@ BackupAllSites(){
   echo -e "${GREEN}Copia de seguridad completa terminada${NC}"
   echo ""
   terminal-notifier -title "BACKUPS COMPLETADOS!!!!" -message "Todas las tareas de Backup han sido completadas"
-  borrarviejos
 }
 
 
@@ -222,7 +226,7 @@ getMenu
 }
 runInDev(){
     if [[ $DEV == 1 ]]; then
-    sudo rm -fr $LOCALBACKUPDIR
+    rm -fr $LOCALBACKUPDIR
     ssh $remoteuser@$remotehost "rm -fr $BACKUPDIR"
     echo ""
     echo "====================================================="
@@ -234,7 +238,7 @@ runInDev(){
 }
 
 resetToDev(){
-  sudo rm -fr $LOCALBACKUPDIR
+  rm -fr $LOCALBACKUPDIR
   ssh $1@$2 "rm -fr /tmp/bash-backup*"
   ssh $1@$2 "ls -la /tmp | grep bash"
   echo ""
