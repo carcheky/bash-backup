@@ -1,7 +1,9 @@
 weburi=backups.example.es
 remotehost=example.es
 remoteuser=iblas
-webroot=/var/www/vhosts/backups.example.es/httpdocs
+webroot[0]=/var/www/vhosts/backups.example.es/httpdocs
+# webroot[1]=/var/www/vhosts/backups.example.es/httpdocs
+# webroot[2]=/var/www/vhosts/backups.example.es/httpdocs
 databasename=backups_example
 databaseuser=backups_example
 databasepassword=example

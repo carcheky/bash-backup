@@ -59,6 +59,7 @@ runInSsh(){
   jftime=$(date "+%Y%m%d%H%M%S")
   jfday=$(date "+%Y%m%d")
   BACKUPDIR=$TMPDIR/bash-backups-$jfday
+
   echo ""
   echo -e "${BLUE}============================================================="
   echo -e "${CYAN}Realizando backup de $weburi ${NC}\n"
@@ -69,7 +70,7 @@ runInSsh(){
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR"
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi"
   ssh $remoteuser@$remotehost "mkdir $BACKUPDIR/$weburi/site"
-  ssh $remoteuser@$remotehost "cp -fr $webroot $BACKUPDIR/$weburi/site"
+  # ssh $remoteuser@$remotehost "cp -fr $webroot $BACKUPDIR/$weburi/site"
 
   echo "Borrando carpetas temporales locales si las hubiera"
   sudo rm -fr $BACKUPDIR*
@@ -80,9 +81,11 @@ runInSsh(){
   mkdir $BACKUPDIR/$weburi
   mkdir $BACKUPDIR/$weburi/site
 
-  echo "bajando a carpetas locales temporales"
-
-  rsync -ah $remoteuser@$remotehost:$webroot $BACKUPDIR/$weburi/site
+  for item in "${webroot[@]}"
+    do
+        echo "bajando a carpetas locales temporales"
+        rsync -ahv $remoteuser@$remotehost:$item $BACKUPDIR/$weburi/site
+    done
 
   if [[ ${databasename} ]]; then
     echo "encontrada base de datos"
@@ -180,9 +183,9 @@ echo "remoteuser:"
 read remoteuser
 echo "remoteuser=$remoteuser" >> backups-conf/$weburi.backup.sh
 
-echo "webroot:"
+echo "webroot (si existe mas de una carpeta a sincronizar, edita el archivo $weburi.backup.sh directamente:"
 read webroot
-echo "webroot=$webroot" >> backups-conf/$weburi.backup.sh
+echo "webroot[0]=$webroot" >> backups-conf/$weburi.backup.sh
 
 echo "databasename:"
 read databasename
