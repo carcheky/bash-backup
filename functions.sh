@@ -79,7 +79,7 @@ runInSsh(){
   echo "==> Creando carpetas locales temporales"
   echo ""
   mkdir $BACKUPDIR
-  # open $BACKUPDIR
+  open $BACKUPDIR
   mkdir $BACKUPDIR/$weburi
   mkdir $BACKUPDIR/$weburi/site
 
@@ -115,16 +115,19 @@ runInSsh(){
 
   fi
 
-  if [ ! -d "$LOCALBACKUPDIR/$weburi" ]; then
-    mkdir $LOCALBACKUPDIR/$weburi
-    echo -e "${YELLOW}$LOCALBACKUPDIR/$weburi creado${NC}"
-  fi
+
   echo "==> Comprimiendo"
   pwd=$(pwd)
 
   cd $BACKUPDIR
   tar -zcf $weburi.-$jftime.tar.gz $weburi
-  mv $weburi.-$jftime.tar.gz $LOCALBACKUPDIR/$weburi/
+    if [ ! -d "$LOCALBACKUPDIR/$weburi" ]; then
+      mkdir $LOCALBACKUPDIR/$weburi
+      echo -e "${YELLOW}$LOCALBACKUPDIR/$weburi creado${NC}"
+    fi
+  pwd2=$(pwd)
+
+  mv ${pwd2}/*.tar.gz $LOCALBACKUPDIR/$weburi/
   cd ${pwd}
 
 
@@ -153,6 +156,8 @@ runInSsh(){
     echo -e "${GREEN}backup de $weburi realizado${NC}"
     echo ""
     terminal-notifier -title "$weburi" -message "backup de $weburi realizado"
+    echo "archivo de configuración movido"
+    mv ./backups-conf/$1 ./backups-conf/backedupyet
 }
 
 ShowHead(){
